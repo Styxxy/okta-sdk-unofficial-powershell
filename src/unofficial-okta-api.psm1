@@ -387,6 +387,7 @@ Function Get-UOktaUserGroups {
         }
     }
 }
+Export-ModuleMember -Function Get-UOktaUserGroups
 
 Function Get-UOktaGroups {
     [CmdletBinding()]
@@ -425,6 +426,7 @@ Function Get-UOktaGroups {
             -Verbose:$Verbose -Debug:$Debug
     }
 }
+Export-ModuleMember -Function Get-UOktaGroups
 
 Function Get-UOktaGroupMembers {
     [CmdletBinding()]
@@ -470,6 +472,7 @@ Function Get-UOktaGroupMembers {
             -Verbose:$Verbose -Debug:$Debug
     }
 }
+Export-ModuleMember -Function Get-UOktaGroupMembers
 
 Function Add-UOktaGroupMember {
     [CmdletBinding()]
@@ -516,6 +519,7 @@ Function Add-UOktaGroupMember {
             -Verbose:$Verbose -Debug:$Debug
     }
 }
+Export-ModuleMember -Function Add-UOktaGroupMember
 
 Function Remove-UOktaGroupMember {
     [CmdletBinding()]
@@ -562,3 +566,4 @@ Function Remove-UOktaGroupMember {
             -Verbose:$Verbose -Debug:$Debug
     }
 }
+Export-ModuleMember -Function Remove-UOktaGroupMember
