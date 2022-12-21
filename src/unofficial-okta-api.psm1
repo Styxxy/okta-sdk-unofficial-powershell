@@ -389,6 +389,55 @@ Function Get-UOktaUserGroups {
 }
 Export-ModuleMember -Function Get-UOktaUserGroups
 
+Function Get-UOktaUserApplications {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Id
+    )
+    Begin {
+        $Verbose = $PSBoundParameters.Verbose
+        $Debug = $PSBoundParameters.Debug
+
+        If ($null -eq $Global:UOktaInstance) {
+            Throw "Connect to an Okta instance before calling any methods."
+        }
+
+        $_RequestMethod = "GET"
+        $_RequestApiUri = "$($Global:UOktaInstance.OktaInstanceUri)/api/v1/apps?filter=user.id eq `"`${userId}`""
+        $_RequestDefaultHeaders = @{
+            Accept = "application/json"
+            Authorization = "SSWS $($Global:UOktaInstance.ApiKey)"
+        }
+    }
+    Process {        
+        If ([String]::IsNullOrWhiteSpace($Id)) {
+            Throw "The Id parameter is mandatory"
+        }
+        
+        $_RequestUri = $_RequestApiUri.Replace("`${userId}", $Id)
+
+        Try {
+            Write-Debug -Message "Calling uri $_RequestUri"
+            Return Invoke-RestMethod `
+                -Uri $_RequestUri `
+                -Method $_RequestMethod `
+                -ContentType "application/json" `
+                -Headers $_RequestDefaultHeaders `
+                -Verbose:$Verbose -Debug:$Debug
+        } Catch [Microsoft.PowerShell.Commands.HttpResponseException] {
+            If ($_.Exception.Response.StatusCode -ne [System.Net.HttpStatusCode]::NotFound) {
+                Throw
+            }
+
+            Write-Debug "Ignoring exception (NotFound): $($_.Exception)"
+            Return @()
+        }
+    }
+}
+Export-ModuleMember -Function Get-UOktaUserApplications
+
 Function Get-UOktaGroups {
     [CmdletBinding()]
     Param (
