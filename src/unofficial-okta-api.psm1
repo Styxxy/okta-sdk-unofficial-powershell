@@ -245,6 +245,45 @@ Function Update-UOktaUser {
 }
 Export-ModuleMember -Function Update-UOktaUser
 
+Function Remove-UOktaUser {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Id,
+
+        [Parameter()]
+        [Switch]$SendEmail
+    )
+    Begin {
+        $Verbose = $PSBoundParameters.Verbose
+        $Debug = $PSBoundParameters.Debug
+
+        If ($null -eq $Global:UOktaInstance) {
+            Throw "Connect to an Okta instance before calling this method"
+        }
+
+        $_RequestMethod = "DELETE"
+        $_RequestUsersApiUri = "$($Global:UOktaInstance.OktaInstanceUri)/api/v1/users/`${userId}"
+        $_RequestDefaultHeaders = @{
+            Accept = "application/json"
+            Authorization = "SSWS $($Global:UOktaInstance.ApiKey)"
+        }
+    }
+    Process {
+        $_RequestUri = $_RequestUsersApiUri.Replace("`${userId}", $Id)
+
+        Write-Debug -Message "Remove-UOktaUser: calling uri $_RequestUri"
+        Return Invoke-RestMethod `
+            -Uri $_RequestUri `
+            -Method $_RequestMethod `
+            -Headers $_RequestDefaultHeaders `
+            -ContentType "application/json"`
+            -Verbose:$Verbose -Debug:$Debug
+    }
+}
+Export-ModuleMember -Function Remove-UOktaUser
+
 Function Update-UOktaUserLifecycle {
     [CmdletBinding()]
     Param (
