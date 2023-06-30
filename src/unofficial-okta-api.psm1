@@ -68,6 +68,73 @@ Function Disconnect-UOktaAccount {
 }
 Export-ModuleMember -Function Disconnect-UOktaAccount
 
+Function Get-UOktaUsers {
+    [CmdletBinding()]
+    Param (
+        #Parameter()]
+        #ValidateRange(1, [int]::MaxValue)][int] $Limit = 200,
+
+        [Parameter()]
+        [Switch] $IncludeCredentials,
+
+        [Parameter()]
+        [Switch] $IncludeCredentialsLinks,
+
+        [Parameter()]
+        [Switch] $IncludeTransitioningToStatus
+    )
+    Begin {
+        $Verbose = $PSBoundParameters.Verbose
+        $Debug = $PSBoundParameters.Debug
+
+        If ($null -eq $Global:UOktaInstance) {
+            Throw "Connect to an Okta instance before calling this method"
+        }
+
+        $_RequestMethod = "GET"
+        $_RequestUri = "$($Global:UOktaInstance.OktaInstanceUri)/api/v1/users"
+        $_RequestDefaultHeaders = @{
+            Accept = "application/json"
+            Authorization = "SSWS $($Global:UOktaInstance.ApiKey)"
+        }
+
+        # Determine content-type
+        [string[]]$_tempOktaResponseValues = @()
+        If (-not $IncludeCredentials) {
+            $_tempOktaResponseValues += "omitCredentials"
+        }
+        If (-not $IncludeCredentialsLinks) {
+            $_tempOktaResponseValues += "omitCredentialsLinks"
+        }
+        If (-not $IncludeTransitioningToStatus) {
+            $_tempOktaResponseValues += "omitTransitioningToStatus"
+        }
+
+        $_RequestContentType = "application/json"
+        If ($_tempOktaResponseValues.Count -gt 0) {
+            $_RequestContentType = "$_RequestContentType; okta-response=$([String]::Join(",", $_tempOktaResponseValues))"
+        }
+
+        $_tempOktaResponseValues = $null
+    }
+    Process {
+        Write-Debug -Message "Get-UOktaUsers: calling uri $_RequestUri"
+        Return Invoke-RestMethod `
+            -Uri $_RequestUri `
+            -Method $_RequestMethod `
+            -ContentType $_RequestContentType -SkipHeaderValidation `
+            -Headers $_RequestDefaultHeaders `
+            -Verbose:$Verbose -Debug:$Debug
+    }
+    End {
+        $_RequestMethod = $null
+        $_RequestUri = $null
+        $_RequestDefaultHeaders = $null
+        $_RequestContentType = $null
+    }
+}
+Export-ModuleMember -Function Get-UOktaUsers
+
 Function Get-UOktaUser {
     [CmdletBinding()]
     Param (
