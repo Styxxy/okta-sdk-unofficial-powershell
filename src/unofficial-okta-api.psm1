@@ -446,6 +446,57 @@ Function Update-UOktaUserLifecycle {
 }
 Export-ModuleMember -Function Update-UOktaUserLifecycle
 
+Function Set-UOktaUserPasswordExpired {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Id,
+
+        [Parameter()]
+        [Switch]$TempPassword
+    )
+    Begin {
+        $Verbose = $PSBoundParameters.Verbose
+        $Debug = $PSBoundParameters.Debug
+
+        If ($null -eq $Global:UOktaInstance) {
+            Throw "Connect to an Okta instance before calling any methods."
+        }
+
+        $_RequestUserLifecycleMethod = "POST"
+        $_RequestApiUri = "$($Global:UOktaInstance.OktaInstanceUri)/api/v1/users/`${userId}/lifecycle/expire_password"
+        $_RequestDefaultHeaders = @{
+            Accept = "application/json"
+            Authorization = "SSWS $($Global:UOktaInstance.ApiKey)"
+        }
+    }
+    Process {
+        If ([string]::IsNullOrWhiteSpace($Id)) {
+            Throw "The Id parameter is mandatory"
+        }
+
+        $_RequestUri = $_RequestApiUri.Replace("`${userId}", $Id)
+        If ($TempPassword) {
+            $_RequestUri = "$($_RequestUri)?tempPassword=true"
+        }
+
+        Write-Debug -Message "Set-UOktaUserPasswordExpired: calling uri $_RequestUri"
+        Return Invoke-RestMethod `
+            -Uri $_RequestUri `
+            -Method $_RequestUserLifecycleMethod `
+            -Headers $_RequestDefaultHeaders `
+            -ContentType "application/json" `
+            -Verbose:$Verbose -Debug:$Debug
+    }
+    End {
+        $_RequestUserLifecycleMethod = $null
+        $_RequestApiUri = $null
+        $_RequestDefaultHeaders = $null
+    }
+}
+Export-ModuleMember -Function Set-UOktaUserPasswordExpired
+
 Function Get-UOktaUserGroups {
     [CmdletBinding()]
     Param (
