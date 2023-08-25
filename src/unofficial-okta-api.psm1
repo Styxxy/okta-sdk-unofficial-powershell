@@ -516,7 +516,7 @@ Function Remove-UOktaUserSessions {
         }
 
         $_RequestUserLifecycleMethod = "DELETE"
-        $_RequestApiUri = "$($Global:UOktaInstance.OktaInstanceUri)/api/v1/users/${userId}/sessions"
+        $_RequestApiUri = "$($Global:UOktaInstance.OktaInstanceUri)/api/v1/users/`${userId}/sessions"
         $_RequestDefaultHeaders = @{
             Accept = "application/json"
             Authorization = "SSWS $($Global:UOktaInstance.ApiKey)"
