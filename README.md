@@ -10,7 +10,7 @@ The operations are prefixed with "UOkta" (= Unofficial Okta cmdlets) to not clas
 
 # Available cmdlets
 
-## Connection to the API
+## Connect to the API
 ### Connect-UOktaAccount
 Set the current Okta organization connection context.
 
@@ -99,6 +99,17 @@ Update-UOktaUser
    [<CommonParameters>]
 ```
 
+### Get-UOktaUserGroups
+Fetches the groups of which the user is a member.
+
+Specify the user's id, login, or login shortname (as long as it is unambiguous) of the user as the `Id` parameter.
+
+```ps1
+Get-UOktaUserGroups
+   -Id <String>
+   [<CommonParameters>]
+```
+
 ### Update-UOktaUserLifecycle
 Lifecycle operations are non-idempotent operations that initiate a state transition for a user's status. Some operations are asynchronous while others are synchronous. The user's current status limits what operations are allowed.
 
@@ -136,14 +147,23 @@ Update-UOktaUserLifecycle
    [<CommonParameters>]
 ```
 
-### Get-UOktaUserGroups
-Fetches the groups of which the user is a member.
-
-Specify the user's id, login, or login shortname (as long as it is unambiguous) of the user as the `Id` parameter.
+### Set-UOktaUserPasswordExpired
+This operation transitions the user status to PASSWORD_EXPIRED so that the user is required to change their password at their next login. If `tempPassword` is included in the request, the user's password is reset to a temporary password that is returned, and then the temporary password is expired.
 
 ```ps1
-Get-UOktaUserGroups
+Set-UOktaUserPasswordExpired
    -Id <String>
+   [-TempPassword]
+   [<CommonParameters>]
+```
+
+### Remove-UOktaUserSessions
+Removes all active identity provider sessions. This forces the user to authenticate on the next operation. Optionally revokes OpenID Connect and OAuth refresh and access tokens issued to the user.
+
+```ps1
+Remove-UOktaUserSessions
+   -Id <String>
+   [-OauthTokens]
    [<CommonParameters>]
 ```
 
