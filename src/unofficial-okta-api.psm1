@@ -497,6 +497,53 @@ Function Set-UOktaUserPasswordExpired {
 }
 Export-ModuleMember -Function Set-UOktaUserPasswordExpired
 
+Function Remove-UOktaUserFactors {
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [String]$Id
+    )
+    Begin {
+        $_Verbose = $PSBoundParameters.Verbose
+        $_Debug = $PSBoundParameters.Debug
+
+        If ($null -eq $Global:UOktaInstance) {
+            Throw "Connect to an Okta instance before calling any methods."
+        }
+
+        $_RequestUserLifecycleMethod = "POST"
+        $_RequestApiUri = "$($Global:UOktaInstance.OktaInstanceUri)/api/v1/users/`${userId}/lifecycle/reset_factors"
+        $_RequestDefaultHeaders = @{
+            Accept = "application/json"
+            Authorization = "SSWS $($Global:UOktaInstance.ApiKey)"
+        }
+    }
+    Process {
+        If ([string]::IsNullOrWhiteSpace($Id)) {
+            Throw "The Id parameter is mandatory"
+        }
+
+        $_RequestUri = $_RequestApiUri.Replace("`${userId}", $Id)
+
+        Write-Debug -Message "Remove-UOktaUserFactors: calling uri $_RequestUri"
+        Return Invoke-RestMethod `
+            -Uri $_RequestUri `
+            -Method $_RequestUserLifecycleMethod `
+            -Headers $_RequestDefaultHeaders `
+            -ContentType "application/json" `
+            -Verbose:$_Verbose -Debug:$_Debug
+    }
+    End {
+        $_RequestUserLifecycleMethod = $null
+        $_RequestApiUri = $null
+        $_RequestDefaultHeaders = $null
+        $_Verbose = $null
+        $_Debug = $null
+    }
+}
+Export-ModuleMember -Function Remove-UOktaUserFactors
+
 Function Remove-UOktaUserSessions {
     [CmdletBinding()]
     Param (
